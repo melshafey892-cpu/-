@@ -1,0 +1,1372 @@
+<!doctype html>
+<html lang="en" dir="ltr" data-theme="light">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>HTML Player – AI4EduTech</title>
+    <meta name="color-scheme" content="light dark">
+    <!-- ExcelJS: real cell colors, borders, fonts (SheetJS free has no styling) -->
+    <script src="https://unpkg.com/exceljs@4.3.0/dist/exceljs.min.js"></script>
+    <!-- docx 7.8.2: real Word binary generation -->
+    <script src="https://cdn.jsdelivr.net/npm/docx@7.8.2/build/index.min.js"></script>
+    <!-- FileSaver for download -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <style>
+        :root {
+            --bg: #ffffff;
+            --fg: #0f172a;
+            --muted: #6b7280;
+            --card: #ffffff;
+            --border: #e5e7eb;
+            --brand: #0d6efd;
+            --success: #16a34a;
+            --warn: #f59e0b;
+            --error: #dc2626;
+            --shadow: 0 2px 8px rgba(0, 0, 0, .08);
+            --iframe-bg: #f3f4f6;
+            --purple: #8b5cf6;
+            --teal: #14b8a6;
+        }
+
+        [data-theme="dark"] {
+            --bg: #0b0f19;
+            --fg: #e5e7eb;
+            --muted: #9ca3af;
+            --card: #0f172a;
+            --border: #1f2937;
+            --shadow: 0 2px 10px rgba(0, 0, 0, .4);
+            --iframe-bg: #030712;
+            --purple: #a78bfa;
+            --teal: #2dd4bf;
+        }
+
+        * { box-sizing: border-box }
+        html, body { height: 100%; background: var(--bg); color: var(--fg); margin: 0; font: 16px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, Arial }
+        .container { max-width: 980px; margin: 0 auto; padding: 0 1rem }
+        .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; box-shadow: var(--shadow); overflow: hidden }
+        .card-header, .card-footer { padding: .75rem 1rem; border-bottom: 1px solid var(--border) }
+        .card-footer { border-top: 1px solid var(--border); border-bottom: none }
+        .card-body { padding: 1rem }
+        .btn { display: inline-flex; align-items: center; gap: .4rem; padding: .5rem .8rem; border-radius: 10px; border: 1px solid var(--border); background: #f8f9fa; cursor: pointer; font-weight: 500; transition: all .2s ease; color: var(--fg) }
+        .btn:hover { transform: translateY(-1px); box-shadow: 0 2px 6px rgba(0,0,0,.12) }
+        .btn:active { transform: translateY(0) }
+        .btn:disabled { opacity: .6; cursor: not-allowed; transform: none }
+        .btn-primary { background: #0d6efd; border-color: #0d6efd; color: #fff }
+        .btn-primary:hover { background: #0b5ed7; border-color: #0b5ed7 }
+        .btn-success { background: #16a34a; border-color: #16a34a; color: #fff }
+        .btn-success:hover { background: #15803d; border-color: #15803d }
+        .btn-warn { background: #f59e0b; border-color: #f59e0b; color: #000 }
+        .btn-warn:hover { background: #d97706; border-color: #d97706 }
+        .btn-ghost { background: transparent; color: var(--fg) }
+        .btn-ghost:hover { background: var(--border) }
+        .btn-sm { padding: .35rem .65rem; font-size: .9rem }
+        .btn-red { background: #dc2626; border-color: #dc2626; color: #fff }
+        .btn-red:hover { background: #b91c1c; border-color: #b91c1c }
+        .btn-blue { background: #2563eb; border-color: #2563eb; color: #fff }
+        .btn-blue:hover { background: #1d4ed8; border-color: #1d4ed8 }
+        .btn-green { background: #16a34a; border-color: #16a34a; color: #fff }
+        .btn-green:hover { background: #15803d; border-color: #15803d }
+        .btn-orange { background: #ea580c; border-color: #ea580c; color: #fff }
+        .btn-orange:hover { background: #c2410c; border-color: #c2410c }
+        .btn-cyan { background: #0891b2; border-color: #0891b2; color: #fff }
+        .btn-cyan:hover { background: #0e7490; border-color: #0e7490 }
+        .btn-indigo { background: #6366f1; border-color: #6366f1; color: #fff }
+        .btn-indigo:hover { background: #4f46e5; border-color: #4f46e5 }
+        .btn-purple { background: var(--purple); border-color: var(--purple); color: #fff }
+        .btn-purple:hover { background: #7c3aed; border-color: #7c3aed }
+        .badge { display: inline-block; padding: .2rem .5rem; background: #e9ecef; border-radius: 999px; font-size: .75rem; color: #111 }
+        .badge-free { background: #10b981; color: #fff; font-weight: 600; padding: .3rem .6rem }
+        .form-control { width: 100%; padding: .6rem .8rem; border: 1px solid var(--border); border-radius: 10px; background: var(--bg); color: var(--fg) }
+        .form-control:focus { outline: 2px solid var(--brand); outline-offset: 2px }
+        .form-control-sm { padding: .4rem .6rem; font-size: .92rem }
+        .small { font-size: .875rem }
+        .text-muted { color: var(--muted) }
+        .d-flex { display: flex }
+        .flex-wrap { flex-wrap: wrap }
+        .gap-2 { gap: .5rem }
+        .gap-3 { gap: .8rem }
+        .align-center { align-items: center }
+        .between { justify-content: space-between }
+        .mb-2 { margin-bottom: .5rem }
+        .mb-3 { margin-bottom: 1rem }
+        .mb-4 { margin-bottom: 1.5rem }
+        .mt-3 { margin-top: 1rem }
+        .py-3 { padding: .75rem 0 }
+        .py-4 { padding: 1rem 0 }
+        .pb-5 { padding-bottom: 2rem }
+        .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace }
+        header svg { fill: currentColor; opacity: .75 }
+        .status-message { min-height: 1.25rem; font-weight: 500 }
+        .status-message.info { color: #2563eb }
+        .status-message.success { color: var(--success) }
+        .status-message.error { color: var(--error) }
+        .preview-wrap { width: 100%; height: 520px; background: transparent; border-radius: 0 0 16px 16px; overflow: hidden }
+        .preview-wrap iframe { width: 100%; height: 100%; border: 0; display: block; border-bottom-left-radius: 16px; border-bottom-right-radius: 16px; background: transparent }
+        .preview-wrap.has-content { background: var(--iframe-bg) }
+        .preview-wrap.has-content iframe { background: var(--iframe-bg) }
+        .dropdown { position: relative }
+        .dropdown-menu { position: absolute; top: 110%; right: 0; min-width: 8rem; background: var(--card); border: 1px solid var(--border); border-radius: 12px; box-shadow: var(--shadow); display: none; padding: .25rem 0; z-index: 10 }
+        .dropdown-menu.show { display: block }
+        .dropdown-item { display: block; width: 100%; padding: .5rem .8rem; background: transparent; border: 0; text-align: left; color: inherit; cursor: pointer; transition: background .2s }
+        .dropdown-item:hover { background: var(--border) }
+        footer { opacity: .75 }
+        #advisory { background: var(--border); padding: .75rem; border-radius: 8px; border-left: 3px solid var(--warn) }
+        textarea.form-control { resize: vertical; min-height: 200px }
+        .form-check-input { width: 18px; height: 18px; cursor: pointer; accent-color: var(--brand) }
+        @keyframes spin { to { transform: rotate(1turn) } }
+        .spinner { display: inline-block; width: .9em; height: .9em; border: .15em solid currentColor; border-right-color: transparent; border-radius: 50%; animation: spin .8s linear infinite }
+
+        /* Export mode indicator */
+        .export-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: .3rem;
+            padding: .2rem .5rem;
+            background: #dcfce7;
+            color: #15803d;
+            border-radius: 6px;
+            font-size: .75rem;
+            font-weight: 600;
+        }
+        [data-theme="dark"] .export-badge { background: #14532d; color: #86efac; }
+
+        @media print {
+            body { margin: 0; padding: 20px }
+            header, footer, .no-print { display: none !important }
+            .card { border: none; box-shadow: none; page-break-inside: avoid }
+            iframe { display: none }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="container py-3 no-print">
+        <div class="d-flex align-center between gap-3 flex-wrap">
+            <div class="d-flex align-center gap-2">
+                <svg width="28" height="28" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M4 5h16v2H4zm0 6h16v2H4zm0 6h10v2H4z" />
+                </svg>
+                <h1 class="h5 m-0" style="margin:0;font-size:1.6rem">HTML Player</h1>
+                <span class="badge badge-free">FREE</span>
+                <span class="export-badge">✦ v2 Smart Export</span>
+            </div>
+            <div class="d-flex align-center gap-2">
+                <button id="btn-theme" class="btn btn-ghost btn-sm" type="button">Dark</button>
+                <div class="dropdown">
+                    <button id="btn-lang" class="btn btn-ghost btn-sm" type="button"><span id="lang-label">EN</span></button>
+                    <div class="dropdown-menu" id="lang-menu" role="menu" aria-labelledby="btn-lang">
+                        <button class="dropdown-item" data-lang="en">English</button>
+                        <button class="dropdown-item" data-lang="ar">العربية</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container pb-5">
+        <section id="creator-view" class="card mb-4 no-print">
+            <div class="card-body">
+                <p class="text-muted small mb-3" id="intro">Paste your HTML, JSON, or Markdown content, then Start. Save &amp; Share to get a student link. <strong>100% Free - No credits required!</strong></p>
+
+                <div class="d-flex flex-wrap gap-2 mb-3 align-center">
+                    <button id="btn-paste" class="btn btn-primary" type="button">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
+                        <span id="btn-paste-text">Paste</span>
+                    </button>
+                    <button id="btn-start" class="btn btn-success" type="button">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                        <span id="btn-start-text">Start</span>
+                    </button>
+                    <button id="btn-save" class="btn btn-warn" type="button">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                        <span id="btn-save-text">Save &amp; Share</span>
+                    </button>
+                    <button id="btn-clear" class="btn btn-ghost btn-sm" type="button">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+                        <span id="btn-clear-text">Clear</span>
+                    </button>
+                </div>
+
+                <div class="mb-3">
+                    <label class="small text-muted mb-2" style="display:block" id="export-label">Export Formats:</label>
+                    <div class="d-flex flex-wrap gap-2">
+                        <button id="btn-html"  class="btn btn-cyan   btn-sm" type="button"><span id="btn-html-text">HTML</span></button>
+                        <button id="btn-pdf"   class="btn btn-red    btn-sm" type="button"><span id="btn-pdf-text">PDF</span></button>
+                        <button id="btn-doc"   class="btn btn-blue   btn-sm" type="button"><span id="btn-doc-text">DOC ✦</span></button>
+                        <button id="btn-excel" class="btn btn-green  btn-sm" type="button"><span id="btn-excel-text">XLS ✦</span></button>
+                        <button id="btn-jpg"   class="btn btn-orange btn-sm" type="button"><span id="btn-jpg-text">JPG</span></button>
+                        <button id="btn-json"  class="btn btn-indigo btn-sm" type="button"><span id="btn-json-text">JSON</span></button>
+                        <button id="btn-md"    class="btn btn-purple btn-sm" type="button"><span id="btn-md-text">MD</span></button>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="small text-muted mb-2" style="display:block" id="upload-label">Upload Formats:</label>
+                    <div class="d-flex flex-wrap gap-2">
+                        <input type="file" id="json-upload" accept=".json" style="display:none">
+                        <button id="btn-upload-json" class="btn btn-indigo btn-sm" type="button"><span id="btn-upload-json-text">Upload JSON</span></button>
+                        <input type="file" id="md-upload" accept=".md,.markdown" style="display:none">
+                        <button id="btn-upload-md" class="btn btn-purple btn-sm" type="button"><span id="btn-upload-md-text">Upload MD</span></button>
+                    </div>
+                </div>
+
+                <div class="mb-3 d-flex gap-2 align-center">
+                    <input id="share-link" class="form-control form-control-sm" type="text" readonly placeholder="Share link appears here after Save">
+                    <button id="btn-copy" class="btn btn-ghost" type="button">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                        Copy
+                    </button>
+                </div>
+
+                <div class="mb-3">
+                    <label class="d-flex align-center gap-2 small">
+                        <input class="form-check-input" type="checkbox" id="relaxSandbox">
+                        <span id="relax-label">Relax sandbox (same-origin)</span>
+                    </label>
+                </div>
+
+                <textarea id="source" class="form-control mono" rows="10" placeholder="<!-- Paste your HTML, JSON, or Markdown here -->"></textarea>
+
+                <div id="advisory" class="text-muted small mt-3" style="display:none"></div>
+                <div class="status-message mt-3" id="status"></div>
+            </div>
+        </section>
+
+        <section id="viewer" class="card" style="display:none">
+            <div class="card-header d-flex align-center between no-print">
+                <div>
+                    <strong id="viewerTitle">Preview</strong>
+                    <span class="small text-muted" id="viewerMeta"></span>
+                </div>
+                <div class="d-flex gap-2">
+                    <button id="btn-restart" class="btn btn-sm btn-ghost" type="button">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+                        <span id="btn-restart-text">Restart</span>
+                    </button>
+                    <a id="btn-open" class="btn btn-sm btn-ghost" href="#" target="_blank" rel="noopener noreferrer">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                        <span id="btn-open-text">Open in New Tab</span>
+                    </a>
+                </div>
+            </div>
+            <div class="preview-wrap" id="preview-wrap">
+                <iframe id="player" title="HTML Player Sandbox"></iframe>
+            </div>
+            <div class="card-footer small text-muted no-print" id="sandboxNote">
+                ⚠️ Sandboxed environment. Some scripts may not run (CORS, external resources).
+            </div>
+        </section>
+
+        <footer class="mt-4 py-3 text-center small text-muted">
+            <p id="footerText">© 2025 AI4EduTech — Free HTML Player for Educational Content</p>
+        </footer>
+    </main>
+
+    <script>
+    (function () {
+        'use strict';
+        const $ = (s) => document.querySelector(s);
+        const LS = { theme: 'html_player_theme', lang: 'html_player_lang', last: 'html_player_last_html' };
+
+        const i18n = {
+            en: {
+                intro: 'Paste your HTML, JSON, or Markdown content, then Start. Save & Share to get a student link. <strong>100% Free - No credits required!</strong>',
+                paste: 'Paste', start: 'Start', clear: 'Clear', saveShare: 'Save & Share',
+                downloadHtml: 'HTML', savePdf: 'PDF', saveJpg: 'JPG', saveDoc: 'DOC ✦',
+                saveExcel: 'XLS ✦', saveJson: 'JSON', saveMd: 'MD',
+                uploadJson: 'Upload JSON', uploadMd: 'Upload MD',
+                relaxSandbox: 'Relax sandbox', viewerTitle: 'Preview',
+                sandboxNote: 'Sandboxed environment. Some scripts may not run.',
+                restart: 'Restart', openNew: 'Open in New Tab',
+                footer: '2025 AI4EduTech - Free HTML Player',
+                themeToDark: 'Dark', themeToLight: 'Light',
+                error: 'Error:', copied: 'Copied to clipboard', saved: 'Saved! Share link ready.',
+                emptyHtml: 'Empty content', downloading: 'Preparing download...',
+                exportSuccess: 'Export complete!', jsonUploaded: 'JSON loaded successfully',
+                mdUploaded: 'Markdown loaded successfully', invalidJson: 'Invalid JSON format',
+                mdConverted: 'Markdown converted to HTML', clearConfirm: 'Clear editor and start fresh?'
+            },
+            ar: {
+                intro: 'الصق HTML أو JSON أو Markdown، ثم ابدأ. احفظ وشارك للحصول على رابط. <strong>مجاني 100%!</strong>',
+                paste: 'لصق', start: 'ابدأ', clear: 'مسح', saveShare: 'حفظ ومشاركة',
+                downloadHtml: 'HTML', savePdf: 'PDF', saveJpg: 'JPG', saveDoc: 'DOC ✦',
+                saveExcel: 'XLS ✦', saveJson: 'JSON', saveMd: 'MD',
+                uploadJson: 'رفع JSON', uploadMd: 'رفع MD',
+                relaxSandbox: 'تخفيف الصندوق', viewerTitle: 'معاينة',
+                sandboxNote: 'بيئة محمية. قد لا تعمل بعض البرامج.',
+                restart: 'إعادة التشغيل', openNew: 'فتح في تبويب جديد',
+                footer: '2025 AI4EduTech - مشغل HTML مجاني',
+                themeToDark: 'داكن', themeToLight: 'فاتح',
+                error: 'خطأ:', copied: 'تم النسخ', saved: 'تم الحفظ!',
+                emptyHtml: 'محتوى فارغ', downloading: 'جاري التحضير...',
+                exportSuccess: 'اكتمل التصدير!', jsonUploaded: 'تم تحميل JSON',
+                mdUploaded: 'تم تحميل Markdown', invalidJson: 'تنسيق JSON غير صالح',
+                mdConverted: 'تم تحويل Markdown إلى HTML', clearConfirm: 'مسح المحرر والبدء من جديد؟'
+            }
+        };
+
+        const btnTheme   = $('#btn-theme');
+        const btnLang    = $('#btn-lang');
+        const langMenu   = $('#lang-menu');
+        const langLabel  = $('#lang-label');
+        const btnPaste   = $('#btn-paste');
+        const btnStart   = $('#btn-start');
+        const btnSave    = $('#btn-save');
+        const btnClear   = $('#btn-clear');
+        const btnHtml    = $('#btn-html');
+        const btnPdf     = $('#btn-pdf');
+        const btnDoc     = $('#btn-doc');
+        const btnExcel   = $('#btn-excel');
+        const btnJpg     = $('#btn-jpg');
+        const btnJson    = $('#btn-json');
+        const btnMd      = $('#btn-md');
+        const btnUploadJson = $('#btn-upload-json');
+        const btnUploadMd   = $('#btn-upload-md');
+        const jsonUpload = $('#json-upload');
+        const mdUpload   = $('#md-upload');
+        const btnCopy    = $('#btn-copy');
+        const btnRestart = $('#btn-restart');
+        const btnOpenNew = $('#btn-open');
+        const sourceEl   = $('#source');
+        const shareLink  = $('#share-link');
+        const relaxSandbox = $('#relaxSandbox');
+        const advisory   = $('#advisory');
+        const status     = $('#status');
+        const iframe     = $('#player');
+        const previewWrap = $('#preview-wrap');
+
+        let currentContentId = null;
+
+        // ─── INIT ──────────────────────────────────────────────────────────────────
+        (() => {
+            const saved_theme = localStorage.getItem(LS.theme) || 'light';
+            document.documentElement.setAttribute('data-theme', saved_theme);
+            updateThemeButtonLabel();
+            const saved_lang = localStorage.getItem(LS.lang) || 'en';
+            setLang(saved_lang);
+            const params = new URLSearchParams(window.location.search);
+            const sharedId = params.get('id');
+            if (sharedId) {
+                $('#creator-view').style.display = 'none';
+                currentContentId = sharedId;
+                loadById(sharedId);
+            } else {
+                loadLastDraft();
+            }
+        })();
+
+        // ─── THEME / LANG ──────────────────────────────────────────────────────────
+        btnTheme.addEventListener('click', () => {
+            const cur = document.documentElement.getAttribute('data-theme');
+            const next = cur === 'light' ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem(LS.theme, next);
+            updateThemeButtonLabel();
+        });
+        btnLang.addEventListener('click', (e) => { e.stopPropagation(); langMenu.classList.toggle('show'); });
+        document.addEventListener('click', () => langMenu.classList.remove('show'));
+        langMenu.querySelectorAll('[data-lang]').forEach(btn => {
+            btn.addEventListener('click', () => { setLang(btn.dataset.lang); langMenu.classList.remove('show'); });
+        });
+
+        // ─── CLEAR ─────────────────────────────────────────────────────────────────
+        btnClear.addEventListener('click', () => {
+            if (sourceEl.value.trim() && !confirm(t('clearConfirm'))) return;
+            sourceEl.value = '';
+            shareLink.value = '';
+            currentContentId = null;
+            clearDraft();
+            advisory.style.display = 'none';
+            $('#viewer').style.display = 'none';
+            toast('info', 'Cleared.');
+        });
+
+        // ─── EXPORT BUTTONS ────────────────────────────────────────────────────────
+        btnHtml.addEventListener('click',  () => { const c = sourceEl.value.trim(); if (!c) return toast('error', t('emptyHtml')); exportAsHTML(c); });
+        btnPdf.addEventListener('click',   () => { const c = sourceEl.value.trim(); if (!c) return toast('error', t('emptyHtml')); exportAsPDF(c); });
+        btnDoc.addEventListener('click',   async () => { const c = sourceEl.value.trim(); if (!c) return toast('error', t('emptyHtml')); await exportAsDOC(c); });
+        btnExcel.addEventListener('click', async () => { const c = sourceEl.value.trim(); if (!c) return toast('error', t('emptyHtml')); await exportAsExcel(c); });
+        btnJpg.addEventListener('click', async () => { const c = sourceEl.value.trim(); if (!c) return toast('error', t('emptyHtml')); await exportAsJPG(c); });
+        btnJson.addEventListener('click',  () => { const c = sourceEl.value.trim(); if (!c) return toast('error', t('emptyHtml')); exportAsJSON(c); });
+        btnMd.addEventListener('click',    () => { const c = sourceEl.value.trim(); if (!c) return toast('error', t('emptyHtml')); exportAsMD(c); });
+
+        // ─── UPLOAD ────────────────────────────────────────────────────────────────
+        btnUploadJson.addEventListener('click', () => jsonUpload.click());
+        btnUploadMd.addEventListener('click',   () => mdUpload.click());
+
+        jsonUpload.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            try {
+                const text = await file.text();
+                const json = JSON.parse(text);
+                let htmlContent = null;
+                if (json.title && json.vocab && Array.isArray(json.vocab) && json.vocab.length > 0) {
+                    // vocab card builder (unchanged)
+                    const title = json.title, vocab = json.vocab, totalCards = vocab.length;
+                    const p = [];
+                    p.push('<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">');
+                    p.push('<title>' + title + '</title>');
+                    p.push('<style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh;padding:20px}.container{max-width:1200px;margin:0 auto;background:white;border-radius:24px;padding:40px;box-shadow:0 20px 60px rgba(0,0,0,0.3)}h1{text-align:center;color:#667eea;font-size:3rem;margin-bottom:40px}.vocab-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:30px;margin-top:30px}.vocab-card{background:white;border:3px solid #667eea;border-radius:20px;padding:20px;text-align:center;box-shadow:0 4px 15px rgba(102,126,234,0.2);transition:all 0.3s ease;cursor:pointer}.vocab-card:hover{transform:translateY(-8px);box-shadow:0 8px 25px rgba(102,126,234,0.4);border-color:#764ba2}.vocab-image{width:100%;height:220px;object-fit:cover;border-radius:16px;margin-bottom:15px;background:#f0f0f0}.vocab-text{font-size:1.8rem;font-weight:bold;color:#333;margin:15px 0}.vocab-button{background:linear-gradient(135deg,#667eea,#764ba2);color:white;border:none;padding:12px 24px;border-radius:12px;font-size:1rem;font-weight:bold;cursor:pointer;margin-top:10px;display:inline-flex;align-items:center;gap:8px;transition:all 0.3s}.vocab-button:hover{transform:scale(1.05)}.submit-btn{display:block;width:100%;max-width:300px;margin:40px auto 0;background:#16a34a;color:white;padding:15px;border-radius:12px;font-size:1.2rem;border:none;cursor:pointer}@media(max-width:768px){h1{font-size:2rem}.container{padding:20px}.vocab-grid{grid-template-columns:1fr;gap:20px}}</style></head><body><div class="container"><h1>' + title + '</h1><div class="vocab-grid">');
+                    vocab.forEach((item, index) => {
+                        const defaultImg = 'data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%27400%27 height=%27300%27%3E%3Crect fill=%27%23f0f0f0%27 width=%27400%27 height=%27300%27/%3E%3Ctext x=%2750%25%27 y=%2750%25%27 dominant-baseline=%27middle%27 text-anchor=%27middle%27 font-family=%27sans-serif%27 font-size=%2720%27 fill=%27%23999%27%3EImage ' + (index + 1) + '%3C/text%3E%3C/svg%3E';
+                        const imageUrl = item.image || defaultImg, text2 = item.text || ('Item ' + (index + 1));
+                        const safeText = text2.replace(/'/g, '&apos;').replace(/"/g, '&quot;');
+                        p.push('<div class="vocab-card" onclick="speakText(\'' + safeText + '\')"><img class="vocab-image" src="' + imageUrl + '" alt="' + text2 + '"><div class="vocab-text">' + text2 + '</div><button class="vocab-button" onclick="event.stopPropagation();speakText(\'' + safeText + '\')">🔊 Listen</button></div>');
+                    });
+                    p.push('</div><button class="submit-btn" onclick="finishLesson()">✅ Finish & Submit</button></div>');
+                    p.push('<scr' + 'ipt>function speakText(t){if("speechSynthesis"in window){window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.rate=0.8;u.pitch=1.1;u.volume=1;window.speechSynthesis.speak(u)}else{alert("Text: "+t)}}function finishLesson(){if(window.submit){window.submit(' + totalCards + ',' + totalCards + ');alert("Results Submitted!")}else{alert("Results tracking not active.")}}<\/script></body></html>');
+                    htmlContent = p.join('\n');
+                    toast('success', 'Interactive lesson created from JSON!');
+                } else if (json.serialized_html && typeof json.serialized_html === 'string') {
+                    htmlContent = json.serialized_html.replace(/src="blob:[^"]+"/g, 'src="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%27400%27 height=%27300%27%3E%3Crect fill=%27%23e0e0e0%27 width=%27400%27 height=%27300%27/%3E%3Ctext x=%2750%25%27 y=%2750%25%27 dominant-baseline=%27middle%27 text-anchor=%27middle%27 font-family=%27sans-serif%27 font-size=%2718%27 fill=%27%23666%27%3EImage Not Available%3C/text%3E%3C/svg%3E"');
+                    toast('success', 'HTML extracted (blob URLs removed)');
+                } else if (json.html && typeof json.html === 'string') { htmlContent = json.html; toast('success', 'HTML extracted from JSON!'); }
+                else if (json.content && typeof json.content === 'string') { htmlContent = json.content; toast('success', 'Content extracted from JSON!'); }
+                else if (json.title) { htmlContent = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>' + json.title + '</title></head><body><h1>' + json.title + '</h1><pre>' + JSON.stringify(json, null, 2) + '</pre></body></html>'; toast('success', 'JSON preview created!'); }
+                if (htmlContent) sourceEl.value = htmlContent;
+                else { sourceEl.value = JSON.stringify(json, null, 2); toast('success', t('jsonUploaded')); }
+                persistDraft(); showAdvisory(sourceEl.value);
+            } catch (error) { console.error(error); toast('error', t('invalidJson')); }
+            e.target.value = '';
+        });
+
+        mdUpload.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            try {
+                sourceEl.value = convertMarkdownToHTML(await file.text());
+                persistDraft();
+                toast('success', t('mdUploaded'));
+            } catch { toast('error', 'Failed to load Markdown'); }
+            e.target.value = '';
+        });
+
+        // ─── PASTE / START / SAVE ──────────────────────────────────────────────────
+        btnPaste.addEventListener('click', async () => {
+            try {
+                const text = await navigator.clipboard.readText();
+                if (text) { sourceEl.value = text; persistDraft(); showAdvisory(text); toast('info', 'Pasted from clipboard.'); }
+            } catch { toast('error', 'Clipboard access denied.'); }
+        });
+
+        btnStart.addEventListener('click', () => {
+            const content = sourceEl.value.trim();
+            if (!content) return toast('error', t('emptyHtml'));
+            runInSandbox(content);
+            toast('success', 'Running...');
+        });
+
+        btnSave.addEventListener('click', async () => {
+            const content = sourceEl.value.trim();
+            if (!content) return toast('error', t('emptyHtml'));
+            runInSandbox(content);
+            setBusy(btnSave, true);
+            try {
+                const response = await fetch('/api/html-player_api.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'save', html: content })
+                });
+                if (!response.ok) throw new Error('Server returned ' + response.status);
+                const res = await response.json();
+                if (!res?.success) throw new Error(res?.error || 'Save failed');
+                currentContentId = res.id;
+                if (res.id) {
+                    const base = window.location.origin + window.location.pathname;
+                    shareLink.value = base + '?id=' + res.id;
+                    btnOpenNew.href = window.location.origin + '/api/html-player_api.php?view=' + res.id;
+                }
+                clearDraft();
+                toast('success', t('saved'));
+            } catch (e) {
+                console.warn('Server save failed, using local fallback:', e.message);
+                const blobUrl = URL.createObjectURL(new Blob([content], { type: 'text/html' }));
+                shareLink.value = blobUrl;
+                btnOpenNew.href = blobUrl;
+                toast('info', 'Previewing locally (server save unavailable).');
+            } finally {
+                setBusy(btnSave, false, t('saveShare'));
+            }
+        });
+
+        // ═══════════════════════════════════════════════════════════════════════════
+        //  LIVE DOM EXTRACTOR
+        //  Priority 1: read from the live rendered iframe (catches JS-generated data)
+        //  Priority 2: fall back to DOMParser on raw source (static HTML only)
+        // ═══════════════════════════════════════════════════════════════════════════
+
+        // ═══════════════════════════════════════════════════════════════════════════
+        //  LIVE DOM EXTRACTOR  v4 — Injection approach
+        //
+        //  Problem: hidden iframe re-runs JS with Math.random() → different data.
+        //  Problem: external assets (Bootstrap) fail in blob: context → timing issues.
+        //
+        //  Solution: INJECT a MutationObserver script at the TOP of the source HTML
+        //  that watches for tbody mutations and serializes row data to
+        //  window.__htmlPlayerExport the instant it's written. We then read
+        //  contentWindow.__htmlPlayerExport directly — no DOM scraping needed.
+        //  This also patches external asset URLs to no-ops so they don't block load.
+        // ═══════════════════════════════════════════════════════════════════════════
+
+        /** Inject extraction scaffolding into HTML source before rendering */
+        function injectExtractionScript(htmlStr) {
+            const injected = `<script>
+(function(){
+  // Intercept external script loads that would fail and block rendering
+  // by converting them to inline no-ops via a document.write intercept
+  window.__htmlPlayerExport = { tables: [], statCards: [], title: document.title || '', ready: false };
+
+  // MutationObserver: capture tbody data the moment it's written by the page JS
+  const observer = new MutationObserver(function(mutations) {
+    mutations.forEach(function(m) {
+      if (m.type === 'childList' && m.addedNodes.length > 0) {
+        // Snapshot all tables right now
+        const tables = [];
+        document.querySelectorAll('table').forEach(function(tbl) {
+          const headers = [];
+          const rows = [];
+          tbl.querySelectorAll('thead th, thead td').forEach(function(c){ headers.push(c.innerText || c.textContent || ''); });
+          if (!headers.length) {
+            const fr = tbl.querySelector('tr');
+            if (fr) fr.querySelectorAll('th,td').forEach(function(c){ headers.push(c.innerText || c.textContent || ''); });
+          }
+          tbl.querySelectorAll('tbody tr').forEach(function(tr){
+            const row = [];
+            tr.querySelectorAll('td,th').forEach(function(c){ row.push(c.innerText || c.textContent || ''); });
+            if (row.some(function(v){return v.trim();})) rows.push(row);
+          });
+          if (headers.length || rows.length) tables.push({ headers: headers, rows: rows });
+        });
+        // Snapshot stat cards
+        const statCards = [];
+        document.querySelectorAll('.stat-card').forEach(function(card){
+          const lEl = card.querySelector('h3,h4,.label');
+          const vEl = card.querySelector('.value,p,strong');
+          if (lEl && vEl) statCards.push({ label: (lEl.innerText||lEl.textContent||'').trim(), value: (vEl.innerText||vEl.textContent||'').trim() });
+        });
+        window.__htmlPlayerExport = {
+          tables: tables,
+          statCards: statCards,
+          title: (document.querySelector('title')||document.querySelector('h1')||{textContent:''}).textContent || '',
+          ready: tables.some(function(t){return t.rows.length > 0;}) || statCards.length > 0
+        };
+      }
+    });
+  });
+
+  // Start observing immediately
+  if (document.body) {
+    observer.observe(document.body, { childList: true, subtree: true });
+  } else {
+    document.addEventListener('DOMContentLoaded', function(){
+      observer.observe(document.body, { childList: true, subtree: true });
+    });
+  }
+})();
+<\/script>`;
+
+            // Inject right after <head> or at the very beginning
+            if (/<head[^>]*>/i.test(htmlStr)) {
+                return htmlStr.replace(/(<head[^>]*>)/i, '$1' + injected);
+            } else if (/<html[^>]*>/i.test(htmlStr)) {
+                return htmlStr.replace(/(<html[^>]*>)/i, '$1' + injected);
+            } else {
+                return injected + htmlStr;
+            }
+        }
+
+        /**
+         * Renders the instrumented HTML in a hidden blob-URL iframe,
+         * polls contentWindow.__htmlPlayerExport.ready, then resolves
+         * with both the doc AND the pre-serialized export data.
+         */
+        async function getRenderedDoc(htmlStr) {
+            return new Promise((resolve) => {
+                toast('info', 'Reading rendered content...');
+
+                const instrumented = injectExtractionScript(htmlStr);
+                const blob = new Blob([instrumented], { type: 'text/html' });
+                const blobUrl = URL.createObjectURL(blob);
+
+                const hiddenFrame = document.createElement('iframe');
+                hiddenFrame.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:1400px;height:900px;border:0;visibility:hidden;';
+                hiddenFrame.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-forms');
+                document.body.appendChild(hiddenFrame);
+
+                let resolved = false;
+                const finish = () => {
+                    if (resolved) return;
+                    resolved = true;
+                    try {
+                        const cw = hiddenFrame.contentWindow;
+                        const cd = hiddenFrame.contentDocument;
+                        const exportData = (cw && cw.__htmlPlayerExport) || null;
+                        URL.revokeObjectURL(blobUrl);
+                        resolve({ doc: cd, exportData });
+                    } catch(e) {
+                        URL.revokeObjectURL(blobUrl);
+                        resolve({ doc: null, exportData: null });
+                    }
+                    setTimeout(() => { try { document.body.removeChild(hiddenFrame); } catch(e){} }, 400);
+                };
+
+                hiddenFrame.onload = () => {
+                    const start = Date.now();
+                    const poll = () => {
+                        try {
+                            const cw = hiddenFrame.contentWindow;
+                            const exp = cw && cw.__htmlPlayerExport;
+                            if (exp && exp.ready) { finish(); return; }
+                            // Also check raw doc as backup
+                            const d = hiddenFrame.contentDocument;
+                            if (d && d.querySelectorAll('tbody tr').length > 0) { finish(); return; }
+                            if (Date.now() - start > 3500) { finish(); return; }
+                            setTimeout(poll, 100);
+                        } catch(e) { finish(); }
+                    };
+                    setTimeout(poll, 200);
+                };
+
+                setTimeout(() => { if (!resolved) finish(); }, 5500);
+                hiddenFrame.src = blobUrl;
+            });
+        }
+
+        /**
+         * Extract from pre-serialized exportData (from injected observer)
+         * or fall back to live doc DOM scraping.
+         */
+        function extractFromDoc(doc, exportData) {
+            // Prefer injected observer data — it captured innerText at render time
+            if (exportData && (exportData.tables.length > 0 || exportData.statCards.length > 0)) {
+                // Clean up the text captured by the observer
+                const cleaned = {
+                    title: cleanCellText(exportData.title) || 'Export',
+                    statCards: exportData.statCards.map(c => ({
+                        label: cleanCellText(c.label),
+                        value: cleanCellText(c.value)
+                    })).filter(c => c.label && c.value),
+                    tables: exportData.tables.map(t => ({
+                        headers: t.headers.map(h => cleanCellText(h)),
+                        rows: t.rows.map(r => r.map(v => cleanCellText(v))).filter(r => r.some(v => v))
+                    })).filter(t => t.headers.length || t.rows.length)
+                };
+                return cleaned;
+            }
+
+            // Fallback: scrape the doc directly (static HTML case)
+            if (!doc) return { title: 'Export', tables: [], statCards: [] };
+
+            const title = (doc.querySelector('title') || doc.querySelector('h1') || doc.querySelector('h2') || {}).textContent || 'Export';
+            const tables = [];
+            doc.querySelectorAll('table').forEach((tbl) => {
+                const headers = [];
+                const rows = [];
+                const headerCells = tbl.querySelectorAll('thead th, thead td');
+                if (headerCells.length) {
+                    headerCells.forEach(cell => headers.push(cleanCellText(cell.textContent)));
+                } else {
+                    const firstRow = tbl.querySelector('tr');
+                    if (firstRow) firstRow.querySelectorAll('th, td').forEach(cell => headers.push(cleanCellText(cell.textContent)));
+                }
+                const bodyRows = Array.from(tbl.querySelectorAll('tbody tr'));
+                const dataRows = bodyRows.length ? bodyRows : Array.from(tbl.querySelectorAll('tr')).slice(1);
+                dataRows.forEach(tr => {
+                    const row = [];
+                    tr.querySelectorAll('td, th').forEach(cell => row.push(cleanCellText(cell.textContent)));
+                    if (row.some(v => v)) rows.push(row);
+                });
+                if (headers.length || rows.length) tables.push({ headers, rows });
+            });
+            const statCards = [];
+            doc.querySelectorAll('.stat-card').forEach(card => {
+                const label = (card.querySelector('h3, h4') || {}).textContent;
+                const value = (card.querySelector('.value') || {}).textContent;
+                if (label && value) statCards.push({ label: cleanCellText(label), value: cleanCellText(value) });
+            });
+            return { title: cleanCellText(title), tables, statCards };
+        }
+
+        function cleanCellText(text) {
+            if (!text) return '';
+            // Remove sort arrows and other unicode symbols that break in Office
+            return text.replace(/[↕↑↓⇅]/g, '').replace(/\s+/g, ' ').trim();
+        }
+
+        function numericVal(str) {
+            // Try to parse as number for proper Excel cell type
+            if (str === null || str === undefined || str === '') return str;
+            const cleaned = String(str).replace(/[%$,]/g, '').trim();
+            const n = Number(cleaned);
+            return isNaN(n) ? str : n;
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════════
+        //  XLSX EXPORT — ExcelJS with real cell colors, borders, fonts
+        // ═══════════════════════════════════════════════════════════════════════════
+
+        async function exportAsExcel(content) {
+            toast('info', 'Building styled Excel workbook...');
+            try {
+                const { doc, exportData } = await getRenderedDoc(content);
+                const parsed = extractFromDoc(doc, exportData);
+                const filename = (parsed.title || 'export').replace(/[^a-z0-9_\-\s]/gi,'').trim().replace(/\s+/g,'_') || 'export';
+
+                const wb = new ExcelJS.Workbook();
+                wb.creator = 'AI4EduTech HTML Player';
+                wb.created = new Date();
+
+                // ── COLOUR PALETTE ──────────────────────────────────────────────
+                const C = {
+                    headerBg:  '1D4ED8', headerFg: 'FFFFFF',
+                    summaryBg: 'EFF6FF', summaryFg: '1E3A8A',
+                    altRow:    'F0F4FF',
+                    borderColor:'D1D5DB',
+                    gradeA: '15803D', gradeB: '65A30D',
+                    gradeC: 'CA8A04', gradeD: 'EA580C', gradeF: 'DC2626',
+                    passFg: '15803D', failFg: 'DC2626',
+                    titleBg: '1D4ED8', titleFg: 'FFFFFF',
+                };
+
+                const border = (color) => ({
+                    top:    { style:'thin', color:{ argb:'FF'+color } },
+                    left:   { style:'thin', color:{ argb:'FF'+color } },
+                    bottom: { style:'thin', color:{ argb:'FF'+color } },
+                    right:  { style:'thin', color:{ argb:'FF'+color } },
+                });
+
+                const fill = (hex) => ({ type:'pattern', pattern:'solid', fgColor:{ argb:'FF'+hex } });
+
+                const getGradeColor = (val, header) => {
+                    const h = (header||'').toLowerCase();
+                    if (h.includes('status')) return val.toLowerCase()==='pass' ? C.passFg : C.failFg;
+                    const n = parseFloat(val);
+                    if (!isNaN(n) && (h.includes('average')||h.includes('gpa')||h.includes('score')||h.includes('math')||h.includes('science')||h.includes('english')||h.includes('history'))) {
+                        if (n>=90) return C.gradeA;
+                        if (n>=80) return C.gradeB;
+                        if (n>=70) return C.gradeC;
+                        if (n>=60) return C.gradeD;
+                        return C.gradeF;
+                    }
+                    return null;
+                };
+
+                // ── SUMMARY SHEET ───────────────────────────────────────────────
+                if (parsed.statCards.length > 0) {
+                    const ws = wb.addWorksheet('Summary');
+                    ws.pageSetup = { paperSize: 9, orientation:'portrait' };
+
+                    // Title row
+                    ws.mergeCells('A1:B1');
+                    const titleCell = ws.getCell('A1');
+                    titleCell.value = parsed.title || 'Dashboard Summary';
+                    titleCell.font = { name:'Calibri', bold:true, size:16, color:{argb:'FF'+C.titleFg} };
+                    titleCell.fill = fill(C.titleBg);
+                    titleCell.alignment = { horizontal:'center', vertical:'middle' };
+                    titleCell.border = border(C.headerBg);
+                    ws.getRow(1).height = 30;
+
+                    // Header row
+                    const hRow = ws.getRow(2);
+                    ['Metric','Value'].forEach((h,i) => {
+                        const cell = hRow.getCell(i+1);
+                        cell.value = h;
+                        cell.font = { name:'Calibri', bold:true, size:11, color:{argb:'FF'+C.headerFg} };
+                        cell.fill = fill(C.headerBg);
+                        cell.alignment = { horizontal:'center', vertical:'middle' };
+                        cell.border = border(C.headerBg);
+                    });
+                    hRow.height = 22;
+
+                    // Data rows
+                    parsed.statCards.forEach((card, ri) => {
+                        const row = ws.getRow(ri + 3);
+                        const isAlt = ri % 2 === 1;
+
+                        const labelCell = row.getCell(1);
+                        labelCell.value = card.label;
+                        labelCell.font = { name:'Calibri', bold:true, size:11 };
+                        labelCell.fill = fill(isAlt ? C.altRow : 'FFFFFF');
+                        labelCell.border = border(C.borderColor);
+                        labelCell.alignment = { vertical:'middle' };
+
+                        const valCell = row.getCell(2);
+                        valCell.value = card.value;
+                        valCell.font = { name:'Calibri', bold:true, size:13, color:{argb:'FF'+C.summaryFg} };
+                        valCell.fill = fill(isAlt ? C.altRow : 'FFFFFF');
+                        valCell.border = border(C.borderColor);
+                        valCell.alignment = { horizontal:'center', vertical:'middle' };
+                        row.height = 24;
+                    });
+
+                    ws.getColumn(1).width = 28;
+                    ws.getColumn(2).width = 18;
+                    ws.views = [{ state:'normal', zoomScale:110 }];
+                }
+
+                // ── DATA SHEET(S) ───────────────────────────────────────────────
+                parsed.tables.forEach((tbl, tIdx) => {
+                    if (!tbl.headers.length && !tbl.rows.length) return;
+                    const wsName = parsed.tables.length === 1 ? 'Data' : `Table ${tIdx+1}`;
+                    const ws = wb.addWorksheet(wsName);
+                    ws.pageSetup = { paperSize:9, orientation: tbl.headers.length >= 7 ? 'landscape':'portrait', fitToPage:true };
+
+                    // Title row
+                    const colCount = tbl.headers.length || 1;
+                    const titleLetter = String.fromCharCode(64 + colCount);
+                    ws.mergeCells(`A1:${titleLetter}1`);
+                    const titleCell = ws.getCell('A1');
+                    titleCell.value = parsed.title || wsName;
+                    titleCell.font = { name:'Calibri', bold:true, size:14, color:{argb:'FF'+C.titleFg} };
+                    titleCell.fill = fill(C.titleBg);
+                    titleCell.alignment = { horizontal:'center', vertical:'middle' };
+                    ws.getRow(1).height = 28;
+
+                    // Header row
+                    const hRow = ws.getRow(2);
+                    tbl.headers.forEach((h, ci) => {
+                        const cell = hRow.getCell(ci+1);
+                        cell.value = h;
+                        cell.font = { name:'Calibri', bold:true, size:10, color:{argb:'FF'+C.headerFg} };
+                        cell.fill = fill(C.headerBg);
+                        cell.alignment = { horizontal:'center', vertical:'middle', wrapText:false };
+                        cell.border = border(C.headerBg);
+                    });
+                    hRow.height = 22;
+                    ws.autoFilter = { from:{row:2, column:1}, to:{row:2, column:colCount} };
+
+                    // Freeze header rows
+                    ws.views = [{ state:'frozen', xSplit:0, ySplit:2, activeCell:'A3', zoomScale:100 }];
+
+                    // Data rows
+                    tbl.rows.forEach((row, ri) => {
+                        const wsRow = ws.getRow(ri + 3);
+                        const isAlt = ri % 2 === 1;
+                        const rowBg = isAlt ? C.altRow : 'FFFFFF';
+
+                        row.forEach((val, ci) => {
+                            const cell = wsRow.getCell(ci+1);
+                            // Numeric conversion
+                            const stripped = String(val||'').replace(/[%$,]/g,'').trim();
+                            const n = Number(stripped);
+                            cell.value = !isNaN(n) && stripped !== '' ? n : val;
+
+                            const gradeColor = getGradeColor(val, tbl.headers[ci]||'');
+                            cell.font = {
+                                name:'Calibri', size:10, bold: !!gradeColor,
+                                color: gradeColor ? {argb:'FF'+gradeColor} : {argb:'FF1A1A1A'}
+                            };
+                            cell.fill = fill(rowBg);
+                            cell.border = border(C.borderColor);
+                            cell.alignment = { horizontal: typeof cell.value==='number' ? 'center' : 'left', vertical:'middle' };
+                        });
+                        wsRow.height = 20;
+                    });
+
+                    // Auto column widths
+                    tbl.headers.forEach((h, ci) => {
+                        const maxLen = Math.max(
+                            h.length,
+                            ...tbl.rows.map(r => String(r[ci]||'').length)
+                        );
+                        ws.getColumn(ci+1).width = Math.min(Math.max(maxLen + 3, 10), 30);
+                    });
+                });
+
+                // Fallback text sheet
+                if (wb.worksheets.length === 0) {
+                    const ws = wb.addWorksheet('Content');
+                    const fb = doc || new DOMParser().parseFromString(content,'text/html');
+                    (fb.body.innerText||fb.body.textContent||'').split('\n')
+                        .map(l=>l.trim()).filter(Boolean)
+                        .forEach((l,i) => { ws.getCell(i+1,1).value = l; });
+                    ws.getColumn(1).width = 60;
+                }
+
+                const buffer = await wb.xlsx.writeBuffer();
+                saveAs(new Blob([buffer], {type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}), filename+'.xlsx');
+                toast('success', t('exportSuccess'));
+            } catch (err) {
+                console.error('Excel export failed:', err);
+                toast('error', 'Excel export failed: ' + err.message);
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════════
+        //  DOCX EXPORT — docx.js real Word binary
+        // ═══════════════════════════════════════════════════════════════════════════
+
+        async function exportAsDOC(content) {
+            toast('info', 'Building Word document...');
+            try {
+                const { doc, exportData } = await getRenderedDoc(content);
+                const parsed = extractFromDoc(doc, exportData);
+                const docTitle = parsed.title || 'Export';
+                const filename = docTitle.replace(/[^a-z0-9_\-\s]/gi,'').trim().replace(/\s+/g,'_') || 'export';
+                const { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell,
+                        WidthType, AlignmentType, HeadingLevel, BorderStyle, ShadingType,
+                        VerticalAlign, PageOrientation, TableLayoutType } = docx;
+
+                const BLUE  = '1D4ED8';
+                const LBLUE = 'EFF6FF';
+                const ALT   = 'F0F4FF';
+                const WHITE = 'FFFFFF';
+                const GREY  = '6B7280';
+                const GREEN = '15803D';
+                const RED   = 'DC2626';
+
+                const gradeColor = (val, header) => {
+                    const h=(header||'').toLowerCase(), n=parseFloat(val);
+                    if (h.includes('status')) return val.toLowerCase()==='pass' ? GREEN : RED;
+                    if (!isNaN(n)&&(h.includes('average')||h.includes('gpa')||h.includes('math')||h.includes('science')||h.includes('english')||h.includes('history')||h.includes('score'))) {
+                        if(n>=90)return'15803D'; if(n>=80)return'65A30D';
+                        if(n>=70)return'CA8A04'; if(n>=60)return'EA580C';
+                        return RED;
+                    }
+                    return null;
+                };
+
+                const thinBorder = (color='D1D5DB') => ({ style:BorderStyle.SINGLE, size:4, color });
+                const cellBorders = (color='D1D5DB') => ({ top:thinBorder(color), bottom:thinBorder(color), left:thinBorder(color), right:thinBorder(color) });
+
+                const children = [];
+
+                // ── Title ──────────────────────────────────────────────────────
+                children.push(new Paragraph({
+                    children:[new TextRun({ text:docTitle, bold:true, size:36, color:BLUE, font:'Calibri' })],
+                    spacing:{ after:80 },
+                    border:{ bottom:{ style:BorderStyle.SINGLE, size:6, color:BLUE } }
+                }));
+
+                // ── Meta line — no product name to avoid Word AutoFormat hyperlink ──
+                children.push(new Paragraph({
+                    children:[
+                        new TextRun({ text:'AI4EduTech  \u2022  ', size:18, color:GREY, font:'Calibri', bold:true }),
+                        new TextRun({ text:new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}), size:18, color:GREY, font:'Calibri' }),
+                    ],
+                    spacing:{ after:240 }
+                }));
+
+                // ── Summary Table ──────────────────────────────────────────────
+                if (parsed.statCards.length > 0) {
+                    children.push(new Paragraph({
+                        children:[new TextRun({ text:'Summary', bold:true, size:28, color:BLUE, font:'Calibri' })],
+                        spacing:{ before:120, after:80 }
+                    }));
+
+                    const summaryRows = parsed.statCards.map((card, ri) => new TableRow({
+                        children:[
+                            new TableCell({
+                                width:{size:5000, type:WidthType.DXA},
+                                shading:{fill: ri%2===0?LBLUE:WHITE, type:ShadingType.CLEAR},
+                                borders: cellBorders(),
+                                margins:{top:80,bottom:80,left:120,right:120},
+                                verticalAlign:VerticalAlign.CENTER,
+                                children:[new Paragraph({ children:[new TextRun({text:card.label, bold:true, size:20, font:'Calibri'})] })]
+                            }),
+                            new TableCell({
+                                width:{size:4000, type:WidthType.DXA},
+                                shading:{fill: ri%2===0?LBLUE:WHITE, type:ShadingType.CLEAR},
+                                borders: cellBorders(),
+                                margins:{top:80,bottom:80,left:120,right:120},
+                                verticalAlign:VerticalAlign.CENTER,
+                                children:[new Paragraph({ alignment:AlignmentType.CENTER, children:[new TextRun({text:card.value, bold:true, size:24, color:BLUE, font:'Calibri'})] })]
+                            })
+                        ],
+                        height:{value:480, rule:'atLeast'}
+                    }));
+
+                    children.push(new Table({
+                        width:{size:9000, type:WidthType.DXA},
+                        columnWidths:[5000,4000],
+                        rows:summaryRows
+                    }));
+                    children.push(new Paragraph({ spacing:{after:240} }));
+                }
+
+                // ── Data Tables ────────────────────────────────────────────────
+                // Determine if any table needs landscape
+                const needsLandscape = parsed.tables.some(t => t.headers.length >= 6);
+                // Page geometry — always landscape if data is wide
+                const PAGE_W  = needsLandscape ? 15840 : 12240; // DXA
+                const PAGE_H  = needsLandscape ? 12240 : 15840;
+                const MARGIN  = 720; // 0.5 inch all sides for landscape
+                const CONTENT_W = PAGE_W - MARGIN * 2;
+
+                parsed.tables.forEach((tbl, tIdx) => {
+                    if (!tbl.headers.length && !tbl.rows.length) return;
+                    const colCount = tbl.headers.length || 1;
+                    // Equal column widths within content area
+                    // Name column gets 2x weight, ID gets 0.6x, others 1x
+                    const weights = tbl.headers.map(h => {
+                        const hl = h.toLowerCase();
+                        if (hl.includes('name')) return 2.2;
+                        if (hl === 'id') return 0.7;
+                        if (hl.includes('average') || hl.includes('gpa')) return 1.4;
+                        return 1;
+                    });
+                    const totalWeight = weights.reduce((a,b) => a+b, 0);
+                    const colWidths = weights.map(w => Math.floor((CONTENT_W * w) / totalWeight));
+                    // Fix rounding: adjust last col
+                    const diff = CONTENT_W - colWidths.reduce((a,b)=>a+b,0);
+                    colWidths[colWidths.length-1] += diff;
+
+                    if (parsed.tables.length > 1) {
+                        children.push(new Paragraph({
+                            children:[new TextRun({text:`Table ${tIdx+1}`, bold:true, size:26, color:BLUE, font:'Calibri'})],
+                            spacing:{before:200, after:80}
+                        }));
+                    }
+
+                    // Header row
+                    const headerRow = new TableRow({
+                        tableHeader:true,
+                        height:{value:450, rule:'atLeast'},
+                        children: tbl.headers.map((h, ci) => new TableCell({
+                            width:{size:colWidths[ci], type:WidthType.DXA},
+                            shading:{fill:BLUE, type:ShadingType.CLEAR},
+                            borders: cellBorders(BLUE),
+                            margins:{top:60,bottom:60,left:80,right:80},
+                            verticalAlign:VerticalAlign.CENTER,
+                            children:[new Paragraph({
+                                alignment:AlignmentType.CENTER,
+                                children:[new TextRun({text:h, bold:true, size:16, color:WHITE, font:'Calibri'})]
+                            })]
+                        }))
+                    });
+
+                    // Data rows
+                    const dataRows = tbl.rows.map((row, ri) => new TableRow({
+                        height:{value:360, rule:'atLeast'},
+                        children: row.map((val,ci) => {
+                            const gc = gradeColor(val, tbl.headers[ci]||'');
+                            const isBold = !!gc;
+                            return new TableCell({
+                                width:{size:colWidths[ci], type:WidthType.DXA},
+                                shading:{fill: ri%2===1?ALT:WHITE, type:ShadingType.CLEAR},
+                                borders: cellBorders(),
+                                margins:{top:50,bottom:50,left:80,right:80},
+                                verticalAlign:VerticalAlign.CENTER,
+                                children:[new Paragraph({
+                                    alignment: !isNaN(parseFloat(val))&&ci>1 ? AlignmentType.CENTER : AlignmentType.LEFT,
+                                    children:[new TextRun({
+                                        text:String(val||''), bold:isBold, size:18,
+                                        color: gc || '1A1A1A', font:'Calibri'
+                                    })]
+                                })]
+                            });
+                        })
+                    }));
+
+                    children.push(new Table({
+                        width:{size:CONTENT_W, type:WidthType.DXA},
+                        columnWidths: colWidths,
+                        layout: TableLayoutType.FIXED,
+                        rows:[headerRow, ...dataRows]
+                    }));
+                    children.push(new Paragraph({spacing:{after:200}}));
+                });
+
+                // Fallback
+                if (!parsed.tables.length && !parsed.statCards.length) {
+                    const fb = doc || new DOMParser().parseFromString(content,'text/html');
+                    (fb.body.innerText||fb.body.textContent||'').split('\n')
+                        .filter(l=>l.trim())
+                        .forEach(l => children.push(new Paragraph({children:[new TextRun({text:l.trim(),font:'Calibri',size:20})]})));
+                }
+
+                const wordDoc = new Document({
+                    settings: {
+                        autoHyphenation: false,
+                    },
+                    sections:[{
+                        properties:{
+                            page:{
+                                // docx.js landscape rule: ALWAYS pass portrait dims (short=width, long=height)
+                                // docx internally swaps them when orientation=LANDSCAPE
+                                size:{
+                                    width: 12240,   // short edge always
+                                    height: 15840,  // long edge always
+                                    orientation: needsLandscape ? PageOrientation.LANDSCAPE : PageOrientation.PORTRAIT
+                                },
+                                margin:{ top:MARGIN, right:MARGIN, bottom:MARGIN, left:MARGIN }
+                            }
+                        },
+                        children
+                    }]
+                });
+
+                const buffer = await Packer.toBlob(wordDoc);
+                saveAs(buffer, filename+'.docx');
+                toast('success', t('exportSuccess'));
+            } catch (err) {
+                console.error('DOCX export failed:', err);
+                toast('error', 'DOCX export failed: ' + err.message);
+            }
+        }
+
+        function escHtml(str) {
+            if (!str) return '';
+            return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+        }
+
+        function getCellClass(cellText, headerText) {
+            return null; // kept for compatibility, not used in new exports
+        }
+
+        // ─── OTHER EXPORT FUNCTIONS ────────────────────────────────────────────────
+
+        function exportAsHTML(content) {
+            toast('info', t('downloading'));
+            const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(new Blob([content], { type: 'text/html' })), download: 'content.html' });
+            a.click(); URL.revokeObjectURL(a.href);
+            toast('success', t('exportSuccess'));
+        }
+
+        function exportAsPDF(content) {
+            toast('info', 'Opening print dialog...');
+            const w = window.open('', '_blank');
+            w.document.write(content); w.document.close();
+            w.onload = () => setTimeout(() => w.print(), 250);
+        }
+
+        async function exportAsJPG(content) {
+            toast('info', 'Capturing screenshot...');
+            const w = window.open('', '_blank', 'width=1200,height=1600');
+            if (!w) { toast('error', 'Popup blocked.'); return; }
+            w.document.write(content); w.document.close();
+            w.onload = async () => {
+                try {
+                    await new Promise(r => setTimeout(r, 2000));
+                    const body = w.document.body, doc2 = w.document.documentElement;
+                    const width = Math.max(body.scrollWidth, doc2.scrollWidth, 1200);
+                    const height = Math.max(body.scrollHeight, doc2.scrollHeight, 800);
+                    const canvas = document.createElement('canvas');
+                    const scale = 2; canvas.width = width * scale; canvas.height = height * scale;
+                    const ctx = canvas.getContext('2d');
+                    ctx.scale(scale, scale);
+                    ctx.fillStyle = w.getComputedStyle(body).backgroundColor || '#ffffff';
+                    ctx.fillRect(0, 0, width, height);
+                    function renderElement(el) {
+                        if (!el || el.nodeType !== 1) return;
+                        const style = w.getComputedStyle(el);
+                        if (style.display === 'none' || style.visibility === 'hidden') return;
+                        const rect = el.getBoundingClientRect();
+                        if (!rect.width || !rect.height) return;
+                        if (style.backgroundColor && style.backgroundColor !== 'rgba(0, 0, 0, 0)') { ctx.fillStyle = style.backgroundColor; ctx.fillRect(rect.left, rect.top, rect.width, rect.height); }
+                        const textNode = Array.from(el.childNodes).find(n => n.nodeType === 3 && n.textContent.trim());
+                        if (textNode) { ctx.fillStyle = style.color || '#000'; ctx.font = `${style.fontWeight} ${style.fontSize} ${style.fontFamily}`; ctx.textBaseline = 'top'; ctx.fillText(textNode.textContent.trim(), rect.left + 10, rect.top + 5); }
+                        Array.from(el.children).forEach(renderElement);
+                    }
+                    renderElement(body);
+                    canvas.toBlob(blob => {
+                        const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(blob), download: 'content.jpg' });
+                        a.click(); URL.revokeObjectURL(a.href);
+                        w.close(); toast('success', t('exportSuccess'));
+                    }, 'image/jpeg', 0.95);
+                } catch { w.close(); toast('error', 'JPG export failed.'); }
+            };
+        }
+
+        function exportAsJSON(content) {
+            toast('info', t('downloading'));
+            let data;
+            try { data = JSON.parse(content); } catch {
+                const tmp = document.createElement('div'); tmp.innerHTML = content;
+                tmp.querySelectorAll('script,style').forEach(e => e.remove());
+                data = { type: 'html_content', html: content, text: tmp.innerText || tmp.textContent || '', timestamp: new Date().toISOString() };
+            }
+            const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })), download: 'content.json' });
+            a.click(); URL.revokeObjectURL(a.href); toast('success', t('exportSuccess'));
+        }
+
+        function exportAsMD(content) {
+            toast('info', t('downloading'));
+            const tmp = document.createElement('div'); tmp.innerHTML = content;
+            tmp.querySelectorAll('script,style').forEach(e => e.remove());
+            const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(new Blob([convertHTMLToMarkdown(tmp)], { type: 'text/markdown' })), download: 'content.md' });
+            a.click(); URL.revokeObjectURL(a.href); toast('success', t('exportSuccess'));
+        }
+
+        function convertHTMLToMarkdown(element) {
+            let md = '';
+            function walk(node) {
+                if (node.nodeType === 3) { const txt = node.textContent.trim(); if (txt) md += txt + ' '; return; }
+                if (node.nodeType !== 1) return;
+                switch (node.tagName.toLowerCase()) {
+                    case 'h1': md += '\n# ' + node.textContent.trim() + '\n\n'; break;
+                    case 'h2': md += '\n## ' + node.textContent.trim() + '\n\n'; break;
+                    case 'h3': md += '\n### ' + node.textContent.trim() + '\n\n'; break;
+                    case 'h4': md += '\n#### ' + node.textContent.trim() + '\n\n'; break;
+                    case 'p': md += '\n' + node.textContent.trim() + '\n\n'; break;
+                    case 'strong': case 'b': md += '**' + node.textContent.trim() + '**'; break;
+                    case 'em': case 'i': md += '*' + node.textContent.trim() + '*'; break;
+                    case 'code': md += '`' + node.textContent.trim() + '`'; break;
+                    case 'a': md += '[' + node.textContent.trim() + '](' + (node.href || '#') + ')'; break;
+                    case 'ul': Array.from(node.children).forEach(li => { md += '- ' + li.textContent.trim() + '\n'; }); md += '\n'; break;
+                    case 'ol': Array.from(node.children).forEach((li, i) => { md += (i + 1) + '. ' + li.textContent.trim() + '\n'; }); md += '\n'; break;
+                    case 'table': {
+                        const rows = Array.from(node.querySelectorAll('tr'));
+                        rows.forEach((row, ri) => {
+                            const cells = Array.from(row.querySelectorAll('th,td')).map(c => cleanCellText(c.textContent));
+                            md += '| ' + cells.join(' | ') + ' |\n';
+                            if (ri === 0) md += '| ' + cells.map(() => '---').join(' | ') + ' |\n';
+                        });
+                        md += '\n';
+                        break;
+                    }
+                    default: Array.from(node.childNodes).forEach(walk);
+                }
+            }
+            walk(element); return md.trim();
+        }
+
+        function convertMarkdownToHTML(md) {
+            let html = md
+                .replace(/^# (.+)$/gm, '<h1>$1</h1>')
+                .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+                .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+                .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*(.+?)\*/g, '<em>$1</em>')
+                .replace(/`(.+?)`/g, '<code>$1</code>')
+                .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2">$1</a>')
+                .replace(/^- (.+)$/gm, '<li>$1</li>')
+                .replace(/(<li>.*<\/li>\n?)+/g, '<ul>$&</ul>')
+                .replace(/\n\n/g, '</p><p>');
+            return `<!DOCTYPE html><html><head><meta charset="utf-8"><style>body{font-family:system-ui;max-width:800px;margin:2rem auto;padding:0 1rem}</style></head><body><p>${html}</p></body></html>`;
+        }
+
+        // ─── COPY / RESTART ────────────────────────────────────────────────────────
+        btnCopy.addEventListener('click', async () => {
+            const link = shareLink.value.trim();
+            if (!link) return;
+            try { await navigator.clipboard.writeText(link); toast('success', t('copied')); } catch { toast('error', 'Copy failed'); }
+        });
+        btnRestart.addEventListener('click', () => { const c = sourceEl.value.trim(); if (c) runInSandbox(c); });
+
+        // ─── SANDBOX ───────────────────────────────────────────────────────────────
+        function runInSandbox(content) {
+            const flags = ['allow-scripts', 'allow-forms', 'allow-pointer-lock', 'allow-popups', 'allow-modals', 'allow-downloads', 'allow-same-origin'];
+            iframe.setAttribute('sandbox', flags.join(' '));
+            iframe.removeAttribute('src');
+            iframe.setAttribute('srcdoc', content);
+            $('#viewer').style.display = 'block';
+            previewWrap.classList.add('has-content');
+            if (currentContentId) {
+                btnOpenNew.href = window.location.origin + '/api/html-player_api.php?view=' + currentContentId;
+            } else {
+                btnOpenNew.href = URL.createObjectURL(new Blob([content], { type: 'text/html' }));
+            }
+        }
+
+        async function loadById(id) {
+            setStatus('info', 'Loading...');
+            try {
+                const response = await fetch('/api/html-player_api.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'get', id })
+                });
+                let res;
+                try { res = await response.json(); } catch { throw new Error('Invalid server response'); }
+                if (!res?.success) throw new Error(res?.error || 'Not found');
+                sourceEl.value = res.html || '';
+                if (res.id) {
+                    currentContentId = res.id;
+                    const base = window.location.origin + window.location.pathname;
+                    shareLink.value = base + '?id=' + res.id;
+                    btnOpenNew.href = window.location.origin + '/api/html-player_api.php?view=' + res.id;
+                }
+                const created = res.created_at ? new Date(res.created_at) : null;
+                $('#viewerMeta').textContent = created ? `#${res.id} • ${created.toLocaleString()}` : `#${res.id}`;
+                runInSandbox(res.html || '');
+                showAdvisory(res.html || '');
+                setStatus('success', 'Loaded.');
+            } catch (e) { console.error(e); setStatus('error', t('error') + ' ' + (e.message || '')); }
+        }
+
+        // ─── ADVISORY ──────────────────────────────────────────────────────────────
+        function showAdvisory(content) {
+            const msgs = [];
+            if (/<script[^>]+src\s*=/i.test(content)) msgs.push('⚠️ External scripts may be blocked by sandbox.');
+            if (/<iframe/i.test(content)) msgs.push('⚠️ Embedded iframes detected.');
+            if (relaxSandbox.checked) msgs.push('ℹ️ Sandbox relaxed: same-origin enabled.');
+            advisory.style.display = msgs.length ? '' : 'none';
+            advisory.innerHTML = msgs.join('<br>');
+        }
+
+        // ─── STATUS / TOAST ────────────────────────────────────────────────────────
+        function setStatus(kind, msg) {
+            status.className = `status-message ${kind}`;
+            status.textContent = msg;
+            if (kind === 'success' || kind === 'info') {
+                clearTimeout(setStatus._t);
+                setStatus._t = setTimeout(() => { if (status.textContent === msg) setStatus('', ''); }, 3000);
+            }
+        }
+        function toast(kind, msg) { setStatus(kind, msg); }
+
+        function setBusy(btn, state, labelWhenDone) {
+            if (state) {
+                btn.disabled = true;
+                btn.dataset.label = btn.textContent;
+                const span = btn.querySelector('span');
+                btn.innerHTML = `<span class="spinner"></span> <span>${span ? span.textContent : btn.textContent}</span>`;
+            } else {
+                btn.disabled = false;
+                if (btn === btnSave) {
+                    btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg><span id="btn-save-text">${labelWhenDone || btn.dataset.label}</span>`;
+                } else { btn.textContent = labelWhenDone || btn.dataset.label; }
+            }
+        }
+
+        // ─── DRAFT ─────────────────────────────────────────────────────────────────
+        const isSharedView = new URLSearchParams(window.location.search).has('id');
+        if (!isSharedView) sourceEl.addEventListener('input', () => { persistDraft(); showAdvisory(sourceEl.value); });
+        function persistDraft() { if (!isSharedView) localStorage.setItem(LS.last, sourceEl.value); }
+        function clearDraft() { localStorage.removeItem(LS.last); }
+        function loadLastDraft() { const v = localStorage.getItem(LS.last); if (v) sourceEl.value = v; }
+
+        // ─── LANGUAGE ──────────────────────────────────────────────────────────────
+        function getLang() { return document.documentElement.lang || 'en'; }
+        function t(key) { return i18n[getLang()][key] || key; }
+        function setLang(lang) {
+            document.documentElement.lang = lang;
+            document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+            localStorage.setItem(LS.lang, lang);
+            langLabel.textContent = lang === 'ar' ? 'AR' : 'EN';
+            const l = i18n[lang];
+            $('#intro').innerHTML = l.intro;
+            $('#btn-paste-text').textContent = l.paste;
+            $('#btn-start-text').textContent = l.start;
+            $('#btn-clear-text').textContent = l.clear;
+            $('#btn-save-text').textContent = l.saveShare;
+            $('#btn-html-text').textContent = l.downloadHtml;
+            $('#btn-pdf-text').textContent = l.savePdf;
+            $('#btn-doc-text').textContent = l.saveDoc;
+            $('#btn-excel-text').textContent = l.saveExcel;
+            $('#btn-jpg-text').textContent = l.saveJpg;
+            $('#btn-json-text').textContent = l.saveJson;
+            $('#btn-md-text').textContent = l.saveMd;
+            $('#btn-upload-json-text').textContent = l.uploadJson;
+            $('#btn-upload-md-text').textContent = l.uploadMd;
+            $('#relax-label').textContent = l.relaxSandbox;
+            $('#viewerTitle').textContent = l.viewerTitle;
+            $('#sandboxNote').textContent = l.sandboxNote;
+            $('#btn-restart-text').textContent = l.restart;
+            $('#btn-open-text').textContent = l.openNew;
+            $('#footerText').textContent = l.footer;
+            updateThemeButtonLabel();
+        }
+        function updateThemeButtonLabel() {
+            const l = getLang();
+            const cur = document.documentElement.getAttribute('data-theme');
+            btnTheme.textContent = cur === 'light' ? i18n[l].themeToDark : i18n[l].themeToLight;
+        }
+
+    })();
+    </script>
+</body>
+</html>
