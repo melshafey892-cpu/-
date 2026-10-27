@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>منصة التصويت لاختيار معلم الشهر - ابتدائية السفراء</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = { theme: { extend: {
+  colors: {
+    brand: { 50:'#f0f4ff',100:'#e0e9fe',500:'#2563eb',600:'#1d4ed8',700:'#1e40af',800:'#1e3a8a',900:'#0f172a' },
+    gold: { 400:'#fbbf24',500:'#f59e0b',600:'#d97706',700:'#b45309' }
+  },
+  fontFamily: { sans: ['Tajawal','sans-serif'] }
+}}}
+</script>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<style>
+body { font-family:'Tajawal',sans-serif; background:linear-gradient(180deg,#f8fafc 0%,#f1f5f9 100%); }
+.luxury-card { background:#fff; box-shadow:0 10px 30px -5px rgba(15,23,42,.05); }
+@keyframes glowingPulse {
+  0%{box-shadow:0 0 0 0 rgba(37,99,235,.4),0 0 12px rgba(245,158,11,.6);transform:scale(1)}
+  50%{box-shadow:0 0 0 12px rgba(37,99,235,0),0 0 24px rgba(245,158,11,.9);transform:scale(1.06)}
+  100%{box-shadow:0 0 0 0 rgba(37,99,235,0),0 0 12px rgba(245,158,11,.6);transform:scale(1)}
+}
+.blinking-logo-ring { animation:glowingPulse 2.5s infinite ease-in-out; }
+</style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col justify-between">
+
+<header class="bg-white/90 backdrop-blur-md border-b border-slate-200/80 sticky top-0 z-30 shadow-sm">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between h-24 items-center gap-2">
+
+      <a href="https://github.com/melshafey892-cpu/-/blob/main/%D8%A7%D9%84%D8%AA%D9%86%D9%85%D9%8A%D8%A9%20%D8%A7%D9%84%D9%85%D8%AA%D9%83%D8%A7%D9%85%D9%84%D8%A9.png" target="_blank" rel="noopener noreferrer" title="التنمية المتكاملة"
+         class="relative w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-white border-2 border-gold-400 p-1 flex items-center justify-center shadow-md blinking-logo-ring hover:scale-110 transition duration-300 flex-shrink-0">
+        <img src="https://raw.githubusercontent.com/melshafey892-cpu/-/main/%D8%A7%D9%84%D8%AA%D9%86%D9%85%D9%8A%D8%A9%20%D8%A7%D9%84%D9%85%D8%AA%D9%83%D8%A7%D9%85%D9%84%D8%A9.png"
+             alt="التنمية المتكاملة" class="w-full h-full object-contain rounded-full"
+             onerror="this.onerror=null; this.src='https://placehold.co/100x100/1e40af/ffffff?text=التنمية';">
+      </a>
+
+      <div class="flex items-center gap-3 cursor-pointer" onclick="switchTab('vote')">
+        <div class="hidden sm:flex w-12 h-12 rounded-2xl bg-gradient-to-tr from-brand-900 via-brand-700 to-brand-600 items-center justify-center shadow-lg">
+          <i class="fa-solid fa-award text-2xl text-gold-400"></i>
+        </div>
+        <div>
+          <h1 class="font-black text-xl sm:text-2xl text-slate-900 tracking-tight">معلم الشهر</h1>
+          <p class="text-xs text-brand-700 font-extrabold">ابتدائية السفراء 🏫</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <nav class="flex items-center gap-1 sm:gap-2 font-bold text-xs sm:text-sm">
+          <button id="navVoteBtn" onclick="switchTab('vote')" class="px-4 py-2.5 rounded-xl bg-brand-600 text-white shadow-md transition"><i class="fa-solid fa-check-to-slot ml-1.5"></i> التصويت</button>
+          <button id="navAdminBtn" onclick="switchTab('admin')" class="px-4 py-2.5 rounded-xl text-slate-600 hover:bg-slate-100 font-bold transition"><i class="fa-solid fa-user-shield ml-1.5"></i> الإدارة</button>
+        </nav>
+        <a href="https://github.com/melshafey892-cpu/-/blob/main/%D9%85%D8%AF%D8%A7%D8%B1%D8%B3%20%D8%A7%D9%84%D8%B3%D9%81%D8%B1%D8%A7%D8%A1.webp" target="_blank" rel="noopener noreferrer" title="مدارس السفراء"
+           class="relative w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-white border-2 border-gold-400 p-1 flex items-center justify-center shadow-md blinking-logo-ring hover:scale-110 transition duration-300 flex-shrink-0">
+          <img src="https://raw.githubusercontent.com/melshafey892-cpu/-/main/%D9%85%D8%AF%D8%A7%D8%B1%D8%B3%20%D8%A7%D9%84%D8%B3%D9%81%D8%B1%D8%A7%D8%A1.webp"
+               alt="مدارس السفراء" class="w-full h-full object-contain rounded-full"
+               onerror="this.onerror=null; this.src='https://placehold.co/100x100/1e40af/ffffff?text=السفراء';">
+        </a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main class="flex-grow max-w-5xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+  <!-- ===== VOTE ===== -->
+  <div id="voteTabView" class="space-y-8">
+    <div class="bg-gradient-to-r from-slate-950 via-brand-900 to-slate-900 rounded-3xl p-6 sm:p-10 text-white shadow-2xl relative overflow-hidden border border-slate-800">
+      <div class="absolute -right-10 -top-10 w-48 h-48 bg-gold-500/10 rounded-full blur-3xl"></div>
+      <div class="relative z-10 max-w-2xl">
+        <span id="cycleMonthBadge" class="inline-block px-3.5 py-1.5 rounded-full bg-amber-400/10 text-gold-400 border border-amber-400/20 text-xs font-extrabold mb-3"></span>
+        <div class="inline-block px-3.5 py-1.5 rounded-full bg-brand-600/60 text-white text-xs font-black mr-2 mb-3">🏫 ابتدائية السفراء</div>
+        <h2 class="text-2xl sm:text-4xl font-black mb-3 tracking-tight">من يستحق لقب معلم الشهر؟</h2>
+        <p class="text-slate-300 text-sm sm:text-base leading-relaxed font-medium">معًا نحتفي بالتميز والعطاء في ابتدائية السفراء. اختر زميلًا واحدًا تراه الأجدر بالتقدير واللقب لهذا الشهر بناءً على جهوده ومبادراته الملموسة.</p>
+      </div>
+    </div>
+
+    <div class="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200/90 rounded-2xl p-4 sm:p-5 text-xs sm:text-sm flex items-start gap-3 shadow-sm">
+      <div class="w-8 h-8 bg-amber-500/10 text-amber-700 rounded-xl flex items-center justify-center flex-shrink-0 text-lg"><i class="fa-solid fa-circle-info"></i></div>
+      <div class="leading-relaxed"><strong class="text-amber-900 font-black">تعليمات مهمة:</strong> اختر اسمك الكامل أولاً للتحقق، ثم حدد معلمًا واحدًا فقط للتصويت له من قائمة معلمي المدرسة المعتمدين.</div>
+    </div>
+
+    <div class="luxury-card rounded-3xl p-6 sm:p-8 border border-slate-200/90 space-y-8">
+      <div class="space-y-3 pb-6 border-b border-slate-100">
+        <label class="text-sm font-black text-slate-900 flex items-center gap-2.5">
+          <span class="w-7 h-7 rounded-xl bg-brand-600 text-white text-xs font-black flex items-center justify-center shadow-md">١</span>
+          اكتب أو اختر اسمك الكامل (المصوّت):
+        </label>
+        <div class="relative max-w-lg">
+          <input type="text" id="voterSearchInput" placeholder="ابدأ بكتابة اسمك للبحث..." oninput="filterVoterNames(this.value)" autocomplete="off"
+                 class="w-full p-4 pr-11 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 font-bold bg-slate-50/50">
+          <i class="fa-solid fa-magnifying-glass absolute right-4 top-5 text-slate-400"></i>
+          <div id="voterDropdown" class="absolute right-0 left-0 top-full mt-2 bg-white border border-slate-200 rounded-2xl shadow-2xl max-h-56 overflow-y-auto hidden z-20 divide-y divide-slate-100"></div>
+        </div>
+        <div id="selectedVoterBadge" class="hidden items-center gap-2 text-xs font-extrabold text-emerald-800 bg-emerald-50 px-3.5 py-2 rounded-xl border border-emerald-200 shadow-sm w-fit">
+          <i class="fa-solid fa-user-check text-emerald-600"></i>
+          <span>تم اختيار المصوّت: <strong id="voterNameDisplay" class="font-black text-emerald-900"></strong></span>
+          <button onclick="clearSelectedVoter()" class="text-slate-400 hover:text-rose-500 mr-2 transition"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+      </div>
+
+      <div class="space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <label class="text-sm font-black text-slate-900 flex items-center gap-2.5">
+            <span class="w-7 h-7 rounded-xl bg-brand-600 text-white text-xs font-black flex items-center justify-center shadow-md">٢</span>
+            اختر المعلم المستحق للقب:
+          </label>
+          <div class="relative w-full sm:w-64">
+            <input type="text" id="candidateSearchInput" placeholder="بحث في المرشحين..." oninput="renderCandidatesList(this.value)"
+                   class="w-full p-3 pr-9 rounded-xl border border-slate-200 text-xs font-bold focus:outline-none bg-slate-50/50">
+            <i class="fa-solid fa-filter absolute right-3 top-3.5 text-slate-400 text-xs"></i>
+          </div>
+        </div>
+        <div id="candidatesGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 max-h-[460px] overflow-y-auto p-1"></div>
+      </div>
+
+      <div class="pt-6 border-t border-slate-100 text-center">
+        <button id="submitVoteBtn" onclick="initiateVoteSubmission()"
+                class="w-full sm:w-auto px-12 py-4 bg-gradient-to-r from-brand-700 to-brand-600 hover:from-brand-800 hover:to-brand-700 active:scale-95 text-white font-black rounded-2xl shadow-xl transition flex items-center justify-center gap-2 text-base mx-auto">
+          <i class="fa-solid fa-paper-plane"></i> اعتماد التصويت
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== ADMIN ===== -->
+  <div id="adminTabView" class="space-y-8 hidden">
+    <div id="adminAuthLock" class="max-w-md mx-auto luxury-card p-8 rounded-3xl border border-slate-200 text-center space-y-4 shadow-xl">
+      <div class="w-16 h-16 bg-brand-50 text-brand-700 rounded-2xl flex items-center justify-center text-2xl mx-auto"><i class="fa-solid fa-lock"></i></div>
+      <h3 class="text-xl font-black text-slate-900">الدخول للوحة الإدارة</h3>
+      <input type="password" id="adminPassInput" placeholder="رمز الدخول الإداري..." onkeydown="if(event.key==='Enter')authenticateAdmin()"
+             class="w-full p-3.5 rounded-xl border border-slate-300 text-center font-black text-sm focus:outline-none">
+      <button onclick="authenticateAdmin()" class="w-full py-3.5 bg-brand-700 text-white font-black rounded-xl shadow-lg hover:bg-brand-800 transition">تسجيل الدخول</button>
+    </div>
+
+    <div id="adminDashboard" class="space-y-8 hidden">
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 luxury-card p-6 rounded-3xl border border-slate-200">
+        <div>
+          <h2 class="text-xl font-black text-slate-900">لوحة إدارة نتائج التصويت 🛡️</h2>
+          <p class="text-xs text-slate-500 font-medium mt-1">متابعة الأصوات واختيار شهر الدورة</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="exportResultsToCSV()" class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs rounded-xl shadow transition"><i class="fa-solid fa-file-excel ml-1"></i> تصدير Excel</button>
+          <button onclick="logoutAdmin()" class="px-3.5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition">خروج</button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="luxury-card p-5 rounded-2xl border border-slate-200 space-y-2">
+          <span class="text-xs font-bold text-slate-400 block">حالة التصويت الحالية</span>
+          <div class="flex items-center justify-between">
+            <span id="adminCycleStatusText" class="font-black text-base text-emerald-600">مفتوح</span>
+            <button id="toggleCycleBtn" onclick="toggleVotingCycleStatus()" class="px-3 py-1.5 text-xs font-extrabold rounded-xl bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200">إغلاق التصويت</button>
+          </div>
+        </div>
+        <div class="luxury-card p-5 rounded-2xl border border-slate-200 space-y-2">
+          <span class="text-xs font-bold text-slate-400 block">إجمالي أصوات الشهر الحالي</span>
+          <div class="text-2xl font-black text-brand-900" id="totalVotesCount">٠ أصوات</div>
+        </div>
+        <div class="luxury-card p-5 rounded-2xl border border-slate-200 space-y-2">
+          <span class="text-xs font-bold text-slate-400 block">اختيار شهر دورة التصويت</span>
+          <div class="flex items-center gap-2">
+            <select id="cycleMonthSelect" class="p-2 border border-slate-200 rounded-xl text-xs font-bold w-full focus:ring-2 focus:ring-brand-500 bg-slate-50"></select>
+            <button onclick="updateCycleMonthTitle()" class="px-3.5 py-2 bg-brand-700 text-white text-xs font-extrabold rounded-xl hover:bg-brand-800 transition">تحديث</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="luxury-card rounded-3xl p-6 border border-slate-200 space-y-4">
+        <h3 class="text-lg font-black text-slate-900">نتائج الدورة الحالية لمعلمي المدرسة</h3>
+        <div class="overflow-x-auto">
+          <table class="w-full text-right text-sm">
+            <thead>
+              <tr class="bg-slate-50 text-slate-500 text-xs border-b border-slate-100 font-bold">
+                <th class="p-3.5">الترتيب</th><th class="p-3.5">اسم المعلم المرشح</th><th class="p-3.5">المادة / التخصص</th><th class="p-3.5">عدد الأصوات</th><th class="p-3.5">النسبة المئوية</th>
+              </tr>
+            </thead>
+            <tbody id="adminResultsTableBody" class="divide-y divide-slate-100 font-bold"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+// ================= الإعدادات: ضع الروابط هنا =================
+const CONFIG = {
+  FIREBASE_URL: 'https://teacher-f339a-default-rtdb.firebaseio.com',
+  SHEETS_URL:   ''   // رابط تطبيق Google Apps Script (ينتهي بـ /exec)
+};
+// إذا تُركت فارغة تعمل الصفحة بتخزين محلي فقط (للتجربة)
+
+// ===== قائمة المعلمين (مستخرجة من ملف جداول الحصص) =====
+const teachersList = [
+  { id: 1,  name: 'أ. محي',                subject: 'مواد متنوعة' },
+  { id: 2,  name: 'أ. الحناوي',            subject: 'لغتي / علوم / دعم' },
+  { id: 3,  name: 'أ. عبد الرحمن الإمام',  subject: 'إسلاميات / لغتي / دعم' },
+  { id: 4,  name: 'أ. رجائي',              subject: 'لغتي' },
+  { id: 5,  name: 'أ. بدوي',               subject: 'علوم / إسلاميات / دعم' },
+  { id: 6,  name: 'أ. الشافعي',            subject: 'رياضيات' },
+  { id: 7,  name: 'أ. محمد',               subject: 'رياضيات' },
+  { id: 8,  name: 'أ. عدي',                subject: 'إسلاميات' },
+  { id: 9,  name: 'أ. أحمد (علوم)',        subject: 'علوم' },
+  { id: 10, name: 'أ. نشأت',               subject: 'لغة إنجليزية' },
+  { id: 11, name: 'أ. سلطان سلطان',        subject: 'لغة إنجليزية' },
+  { id: 12, name: 'أ. هشام',               subject: 'تربية بدنية' },
+  { id: 13, name: 'أ. احمد (فنية)',        subject: 'تربية فنية' },
+  { id: 14, name: 'أ. حسن',                subject: 'مهارات رقمية' },
+  { id: 15, name: 'أ. أحمد الحربي',        subject: 'دراسات اجتماعية' }
+];
+
+const monthsList = [
+  'محرم / أغسطس','صفر / سبتمبر','ربيع الأول / أكتوبر','ربيع الآخر / نوفمبر',
+  'جمادى الأولى / ديسمبر','جمادى الآخرة / يناير','رجب / فبراير','شعبان / مارس',
+  'رمضان / أبريل','شوال / مايو','ذو القعدة / يونيو','ذو الحجة / يوليو'
+];
+
+// ================= طبقة البيانات =================
+const useFB = () => !!CONFIG.FIREBASE_URL;
+const fbUrl = p => CONFIG.FIREBASE_URL.replace(/\/$/, '') + '/' + p + '.json';
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+};
+
+// الإعدادات: { month: رقم الشهر, open: true/false }
+async function loadSettings() {
+  const def = { month: 2, open: true };
+  if (useFB()) {
+    const r = await fetch(fbUrl('settings'));
+    if (!r.ok) throw new Error('settings');
+    return Object.assign(def, await r.json());
+  }
+  return Object.assign(def, store.get('settings', {}));
+}
+async function saveSettings(s) {
+  if (useFB()) {
+    const r = await fetch(fbUrl('settings'), { method: 'PUT', body: JSON.stringify(s) });
+    if (!r.ok) throw new Error('settings');
+  } else store.set('settings', s);
+}
+// الأصوات: { رقم الشهر: { رقم المعلم المصوّت: {voter, candidate, ts} } }
+async function loadVotes() {
+  if (useFB()) {
+    const r = await fetch(fbUrl('votes'));
+    if (!r.ok) throw new Error('votes');
+    return (await r.json()) || {};
+  }
+  return store.get('votes', {});
+}
+// يعيد false إذا صوّت المعلم سابقًا
+async function saveVote(m, voterId, rec) {
+  if (useFB()) {
+    const path = 'votes/' + m + '/' + voterId;
+    const chk = await fetch(fbUrl(path));
+    if (!chk.ok) throw new Error('vote');
+    if (await chk.json()) return false;
+    const r = await fetch(fbUrl(path), { method: 'PUT', body: JSON.stringify(rec) });
+    if (!r.ok) throw new Error('vote');
+  } else {
+    const v = store.get('votes', {});
+    v[m] = v[m] || {};
+    if (v[m][voterId]) return false;
+    v[m][voterId] = rec;
+    store.set('votes', v);
+  }
+  if (CONFIG.SHEETS_URL) { // نسخة احتياطية في Google Sheets
+    fetch(CONFIG.SHEETS_URL, {
+      method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify({ month: monthsList[m], voter: rec.voter, candidate: rec.candidate })
+    }).catch(() => {});
+  }
+  return true;
+}
+
+// ================= الحالة =================
+let settings = { month: 2, open: true };
+let allVotes = {};
+let selectedVoter = null;
+const toAr = n => String(n).replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
+const curMonthName = () => monthsList[settings.month];
+const monthVotes = () => allVotes[settings.month] || {};
+const fail = () => alert('تعذّر الاتصال بقاعدة البيانات. تحقق من الإنترنت ومن إعدادات الروابط ثم أعد المحاولة.');
+
+// ================= الواجهة =================
+function switchTab(tab) {
+  const isVote = tab === 'vote';
+  document.getElementById('voteTabView').classList.toggle('hidden', !isVote);
+  document.getElementById('adminTabView').classList.toggle('hidden', isVote);
+  const on = 'px-4 py-2.5 rounded-xl bg-brand-600 text-white shadow-md font-bold transition';
+  const off = 'px-4 py-2.5 rounded-xl text-slate-600 hover:bg-slate-100 font-bold transition';
+  document.getElementById('navVoteBtn').className = isVote ? on : off;
+  document.getElementById('navAdminBtn').className = isVote ? off : on;
+  if (!isVote && !document.getElementById('adminDashboard').classList.contains('hidden')) refreshAdmin();
+}
+
+async function refreshAdmin() {
+  try { settings = await loadSettings(); allVotes = await loadVotes(); } catch (e) { fail(); return; }
+  try { initMonthSelect(); renderCycleStatus(); renderAdminResults(); }
+  catch (e) { console.error(e); alert('حدث خطأ أثناء عرض النتائج: ' + e.message); }
+}
+
+async function authenticateAdmin() {
+  const pass = document.getElementById('adminPassInput').value;
+  if (pass === '1234' || pass === 'admin') {
+    document.getElementById('adminAuthLock').classList.add('hidden');
+    document.getElementById('adminDashboard').classList.remove('hidden');
+    refreshAdmin();
+  } else alert('رمز الدخول غير صحيح');
+}
+function logoutAdmin() {
+  document.getElementById('adminAuthLock').classList.remove('hidden');
+  document.getElementById('adminDashboard').classList.add('hidden');
+  document.getElementById('adminPassInput').value = '';
+}
+
+function renderCycleStatus() {
+  const t = document.getElementById('adminCycleStatusText'), b = document.getElementById('toggleCycleBtn');
+  if (settings.open) {
+    t.innerText = 'مفتوح'; t.className = 'font-black text-base text-emerald-600';
+    b.innerText = 'إغلاق التصويت'; b.className = 'px-3 py-1.5 text-xs font-extrabold rounded-xl bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200';
+  } else {
+    t.innerText = 'مغلق'; t.className = 'font-black text-base text-rose-600';
+    b.innerText = 'فتح التصويت'; b.className = 'px-3 py-1.5 text-xs font-extrabold rounded-xl bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200';
+  }
+}
+async function toggleVotingCycleStatus() {
+  try { await saveSettings({ ...settings, open: !settings.open }); settings.open = !settings.open; } catch (e) { fail(); return; }
+  renderCycleStatus();
+}
+
+function initMonthSelect() {
+  document.getElementById('cycleMonthSelect').innerHTML =
+    monthsList.map((m, i) => `<option value="${i}" ${i === settings.month ? 'selected' : ''}>${m}</option>`).join('');
+  document.getElementById('cycleMonthBadge').innerText = 'فترة التصويت: ' + curMonthName();
+}
+async function updateCycleMonthTitle() {
+  const m = Number(document.getElementById('cycleMonthSelect').value);
+  try { await saveSettings({ ...settings, month: m }); settings.month = m; allVotes = await loadVotes(); } catch (e) { fail(); return; }
+  document.getElementById('cycleMonthBadge').innerText = 'فترة التصويت: ' + curMonthName();
+  renderAdminResults();
+  alert('تم تحديث شهر الدورة بنجاح إلى: ' + curMonthName());
+}
+
+function filterVoterNames(val) {
+  const dd = document.getElementById('voterDropdown');
+  selectedVoter = null;
+  document.getElementById('selectedVoterBadge').classList.add('hidden');
+  document.getElementById('selectedVoterBadge').classList.remove('flex');
+  if (!val.trim()) { dd.classList.add('hidden'); return; }
+  dd.classList.remove('hidden');
+  const filtered = teachersList.filter(t => t.name.includes(val.trim()));
+  dd.innerHTML = filtered.map(t => `<div class="p-3 hover:bg-slate-50 cursor-pointer text-xs font-bold text-slate-700" onclick="selectVoter(${t.id})">${t.name} (${t.subject})</div>`).join('')
+    || '<div class="p-3 text-xs text-slate-400">لا توجد نتائج مطابقة</div>';
+}
+function selectVoter(id) {
+  const t = teachersList.find(x => x.id === id);
+  selectedVoter = t;
+  document.getElementById('voterSearchInput').value = t.name;
+  document.getElementById('voterDropdown').classList.add('hidden');
+  document.getElementById('voterNameDisplay').innerText = t.name;
+  document.getElementById('selectedVoterBadge').classList.remove('hidden');
+  document.getElementById('selectedVoterBadge').classList.add('flex');
+}
+function clearSelectedVoter() {
+  selectedVoter = null;
+  document.getElementById('voterSearchInput').value = '';
+  document.getElementById('selectedVoterBadge').classList.add('hidden');
+  document.getElementById('selectedVoterBadge').classList.remove('flex');
+}
+
+function renderCandidatesList(filter = '') {
+  const f = filter.trim();
+  const list = teachersList.filter(c => c.name.includes(f) || c.subject.includes(f));
+  document.getElementById('candidatesGrid').innerHTML = list.map(c => `
+    <label class="p-4 rounded-2xl border border-slate-200 bg-slate-50/50 hover:bg-white hover:shadow-md transition cursor-pointer flex items-center justify-between">
+      <div><h4 class="font-black text-sm text-slate-900">${c.name}</h4><span class="text-xs text-slate-500 font-bold">${c.subject}</span></div>
+      <input type="radio" name="candidate" value="${c.id}" class="w-4 h-4 text-brand-600 focus:ring-brand-500">
+    </label>`).join('');
+}
+
+function getResults() {
+  const mv = Object.values(monthVotes()).filter(v => v && v.candidate), counts = {};
+  mv.forEach(v => counts[v.candidate] = (counts[v.candidate] || 0) + 1);
+  const total = mv.length;
+  const rows = teachersList.map(t => ({ ...t, count: counts[t.name] || 0, pct: total ? Math.round((counts[t.name] || 0) / total * 100) : 0 }));
+  rows.sort((a, b) => b.count - a.count);
+  return { rows, total };
+}
+function renderAdminResults() {
+  const { rows, total } = getResults();
+  document.getElementById('totalVotesCount').innerText = toAr(total) + ' أصوات';
+  document.getElementById('adminResultsTableBody').innerHTML = rows.map((t, i) => `
+    <tr class="hover:bg-slate-50">
+      <td class="p-3.5 text-xs text-slate-600">${toAr(i + 1)}</td>
+      <td class="p-3.5 text-slate-900 font-black">${t.name}</td>
+      <td class="p-3.5 text-slate-600 text-xs">${t.subject}</td>
+      <td class="p-3.5 text-brand-700 font-black">${toAr(t.count)} أصوات</td>
+      <td class="p-3.5 text-slate-500">${toAr(t.pct)}٪</td>
+    </tr>`).join('');
+}
+
+let submitting = false;
+async function initiateVoteSubmission() {
+  if (submitting) return;
+  if (!selectedVoter) { alert('الرجاء اختيار اسم المصوّت من القائمة أولاً.'); return; }
+  const chosen = document.querySelector('input[name="candidate"]:checked');
+  if (!chosen) { alert('الرجاء اختيار المعلم المرشح للتصويت.'); return; }
+  const cand = teachersList.find(t => t.id === Number(chosen.value));
+  const btn = document.getElementById('submitVoteBtn');
+  submitting = true; btn.disabled = true; btn.style.opacity = .6;
+  try {
+    settings = await loadSettings(); // أحدث حالة وشهر
+    document.getElementById('cycleMonthBadge').innerText = 'فترة التصويت: ' + curMonthName();
+    if (!settings.open) { alert('التصويت مغلق حاليًا.'); return; }
+    const ok = await saveVote(settings.month, selectedVoter.id, { voter: selectedVoter.name, candidate: cand.name, ts: Date.now() });
+    if (!ok) { alert('سبق أن صوّتَّ في هذه الدورة. لا يمكن التصويت مرتين.'); return; }
+    alert('تم اعتماد صوتك بنجاح للمعلم: ' + cand.name + '. شكراً لمشاركتك!');
+    confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+    clearSelectedVoter(); chosen.checked = false;
+  } catch (e) { fail(); }
+  finally { submitting = false; btn.disabled = false; btn.style.opacity = 1; }
+}
+
+function exportResultsToCSV() {
+  const { rows } = getResults();
+  let csv = '\uFEFFالترتيب,المعلم,المادة,عدد الأصوات,النسبة\n';
+  rows.forEach((t, i) => csv += `${i + 1},"${t.name}","${t.subject}",${t.count},${t.pct}%\n`);
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
+  a.download = 'نتائج-' + curMonthName().replace(/[\s\/]+/g, '-') + '.csv';
+  a.click();
+}
+
+window.onload = async function () {
+  renderCandidatesList();
+  try { settings = await loadSettings(); } catch (e) {}
+  initMonthSelect();
+};
+</script>
+</body>
+</html>
